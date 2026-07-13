@@ -4,8 +4,8 @@ const CREATOR_WALLET = "24CbJMAacduVCbxqKroXPUGed8dHUBPWYGuySDh7fmWn";
 let userWalletAddress = null;
 let referrerAddress = null;
 
-// Retrieve Google Apps Script URL from LocalStorage if set
-let scriptUrl = localStorage.getItem("tvk_script_url") || "";
+// Google Apps Script URL for live database
+const scriptUrl = "https://script.google.com/macros/s/AKfycbwpF_qLZypzzhsCgdqXSMvmN6_OwFMsgnG8THtyjtCvo57dwjaDxkN3ZhKxJRtow-1nbQ/exec";
 
 window.addEventListener("load", () => {
   // Check for referrer in URL params: e.g., ?ref=WALLET_ADDRESS
@@ -19,12 +19,8 @@ window.addEventListener("load", () => {
     referrerAddress = localStorage.getItem("tvk_referrer") || null;
   }
   
-  if (scriptUrl) {
-    document.getElementById("txtScriptUrl").value = scriptUrl;
-    fetchStats();
-  } else {
-    updateMockStats();
-  }
+  document.getElementById("txtScriptUrl").value = scriptUrl;
+  fetchStats();
 });
 
 // Check if address is a valid Solana public key (basic length and character check)
