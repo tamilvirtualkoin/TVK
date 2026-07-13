@@ -1,7 +1,7 @@
 /**
  * Google Apps Script backend database for TVK Airdrop Landing Page.
  * Paste this script into your Google Sheet's Apps Script editor (Extensions -> Apps Script).
- * Deploy it as a Web App (Anyone, even anonymous has access).
+ * Deploy it as a Web App (Execute as: Me, Who has access: Anyone).
  */
 
 function doPost(e) {
@@ -52,7 +52,26 @@ function doGet(e) {
     sheet.appendRow(["Wallet Address", "Referrer Address", "Timestamp", "Status"]);
   }
 
-  // Handle updates from admin dashboard: ?updateIdx=CLAIM_INDEX&status=completed
+  // 1. PUBLIC STATISTICS QUERY: If no key is provided, return only the count of completed claims
+  if (e.parameter.key === undefined && e.parameter.updateIdx === undefined) {
+    var rows = sheet.getDataRange().getValues();
+    var completedCount = 0;
+    for (var i = 1; i < rows.length; i++) {
+      if (rows[i][3] === "completed") {
+        completedCount++;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ completed: completedCount }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 2. ADMIN SECURITY VERIFICATION
+  if (e.parameter.key !== "Pktvk13") {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", error: "Unauthorized access." }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Handle updates from admin dashboard: ?updateIdx=CLAIM_INDEX&status=completed&key=Pktvk13
   if (e.parameter.updateIdx !== undefined && e.parameter.status !== undefined) {
     var idx = parseInt(e.parameter.updateIdx) + 2; // Rows are 1-indexed, header is row 1, so index 0 is row 2
     sheet.getRange(idx, 4).setValue(e.parameter.status);
@@ -60,7 +79,7 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Fetch all claims to display in dashboard
+  // Fetch all claims to display in dashboard (requires correct key)
   var rows = sheet.getDataRange().getValues();
   var claims = [];
   for (var i = 1; i < rows.length; i++) {

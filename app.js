@@ -2,8 +2,12 @@ const MINT_ADDRESS = "k9uz5aSAFQAb2wMLuP2MU73FnwJRMThcsfmmr5KbQ3E";
 const CREATOR_WALLET = "24CbJMAacduVCbxqKroXPUGed8dHUBPWYGuySDh7fmWn";
 const scriptUrl = "https://script.google.com/macros/s/AKfycbwpF_qLZypzzhsCgdqXSMvmN6_OwFMsgnG8THtyjtCvo57dwjaDxkN3ZhKxJRtow-1nbQ/exec";
 
+// Secure SHA-256 hash of password "Pktvk13"
+const ADMIN_HASH = "a3485f3e2aab41391aeda05cd3d5dce743079927ab4d9bd2f87b179b75ccd9f2";
+
 let userWalletAddress = null;
 let referrerAddress = null;
+let adminPassword = null; // Stored temporarily in-session when unlocked to verify DB queries
 
 // Helper to get device-specific Phantom download link
 function getPhantomDownloadUrl() {
@@ -49,11 +53,10 @@ function validateSolanaAddress(address) {
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
-// Handle address input and reveal features dynamically
+// Handle address input and reveal referral links dynamically
 function handleAddressInput() {
   const addressInput = document.getElementById("txtUserWallet").value.trim();
   const refContainer = document.getElementById("refLinkContainer");
-  const adminSection = document.getElementById("adminSection");
   
   if (validateSolanaAddress(addressInput)) {
     userWalletAddress = addressInput;
@@ -63,19 +66,9 @@ function handleAddressInput() {
     const refLink = `${window.location.origin}${window.location.pathname}?ref=${userWalletAddress}`;
     document.getElementById("lblRefUrl").innerText = refLink;
     refContainer.style.display = "block";
-
-    // Reveal Creator Admin Dashboard automatically if creator address is pasted
-    if (userWalletAddress === CREATOR_WALLET) {
-      adminSection.style.display = "block";
-      loadAdminClaims();
-    } else {
-      adminSection.style.display = "none";
-    }
   } else {
-    // Hide panels if address is incomplete or invalid
     userWalletAddress = null;
     refContainer.style.display = "none";
-    adminSection.style.display = "none";
   }
 }
 
@@ -120,7 +113,7 @@ async function submitClaim() {
     
     showSuccess("Airdrop claim submitted successfully! The creator will review and transfer your 20,000 TVK shortly.");
     fetchStats();
-    if (userWalletAddress === CREATOR_WALLET) {
+    if (adminPassword) {
       loadAdminClaims();
     }
   } catch (err) {
@@ -135,20 +128,26 @@ async function submitClaim() {
 async function fetchStats() {
   try {
     const res = await fetch(scriptUrl);
-    const claims = await res.json();
-    const approvedCount = claims.filter(c => c.status === "completed").length;
+    const data = await res.json();
+    const approvedCount = data.completed || 0;
     document.getElementById("statClaims").innerText = `${approvedCount} / 25`;
   } catch (e) {
     console.error("Error fetching stats:", e);
   }
 }
 
-// Load Claims into Admin Dashboard (No Web3/RPC dependencies)
+// Load Claims into Admin Dashboard (Requires adminPassword for authentication)
 async function loadAdminClaims() {
+  if (!adminPassword) return;
+
   let claims = [];
   try {
-    const res = await fetch(scriptUrl);
+    const res = await fetch(`${scriptUrl}?key=${encodeURIComponent(adminPassword)}`);
     claims = await res.json();
+    if (claims.status === "error") {
+      showError("Authentication failed: " + claims.error);
+      return;
+    }
   } catch (e) {
     console.error("Failed to load claims:", e);
   }
@@ -205,16 +204,77 @@ function copyText(text) {
   });
 }
 
-// Mark claim status as completed in Google Sheets
+// Mark claim status as completed in Google Sheets (Requires adminPassword)
 async function markAsCompleted(claimIdx) {
+  if (!adminPassword) return showError("Unauthorized.");
   showSuccess("Updating status...");
   try {
-    await fetch(scriptUrl + `?updateIdx=${claimIdx}&status=completed`);
-    showSuccess("Status updated to completed in Google Sheet!");
-    loadAdminClaims();
-    fetchStats();
+    const res = await fetch(`${scriptUrl}?updateIdx=${claimIdx}&status=completed&key=${encodeURIComponent(adminPassword)}`);
+    const data = await res.json();
+    if (data.status === "updated") {
+      showSuccess("Status updated to completed in Google Sheet!");
+      loadAdminClaims();
+      fetchStats();
+    } else {
+      showError("Failed to update status: " + data.error);
+    }
   } catch (e) {
     showError("Failed to update Google Sheet: " + e.message);
+  }
+}
+
+// ----------------------------------------------------
+// SECRET SHORTCUT ACCESS CONTROL (FOR CREATOR ONLY)
+// ----------------------------------------------------
+
+// 1. Desktop Keyboard Shortcut (Ctrl + Shift + A or Cmd + Shift + A)
+window.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+    e.preventDefault();
+    promptAdminLogin();
+  }
+});
+
+// 2. Mobile Tap Shortcut (Tap TVK Logo 5 times quickly)
+let logoClicks = 0;
+let lastLogoClick = 0;
+
+function handleLogoClick() {
+  const now = Date.now();
+  if (now - lastLogoClick < 1000) {
+    logoClicks++;
+  } else {
+    logoClicks = 1;
+  }
+  lastLogoClick = now;
+
+  if (logoClicks >= 5) {
+    logoClicks = 0;
+    promptAdminLogin();
+  }
+}
+
+// Helper to hash password using SHA-256
+async function hashSHA256(text) {
+  const msgBuffer = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Prompt Creator for secret password
+async function promptAdminLogin() {
+  const password = prompt("Enter Creator Security Password:");
+  if (password) {
+    const hash = await hashSHA256(password);
+    if (hash === ADMIN_HASH) {
+      adminPassword = password;
+      showSuccess("Welcome, Creator! Admin dashboard unlocked successfully.");
+      document.getElementById("adminSection").style.display = "block";
+      loadAdminClaims();
+    } else {
+      showError("Access Denied: Incorrect administrator password.");
+    }
   }
 }
 
