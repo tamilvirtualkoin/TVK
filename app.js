@@ -51,57 +51,95 @@ function getProvider() {
   return null;
 }
 
-// Connect / Disconnect Phantom Wallet (Uses local wallet injection, no RPC needed)
-async function toggleWallet() {
-  const provider = getProvider();
+let selectedProvider = null;
+
+function openWalletModal() {
+  if (userWalletAddress) {
+    disconnectWallet();
+  } else {
+    toggleWalletModal(true);
+  }
+}
+
+function toggleWalletModal(show) {
+  const modal = document.getElementById("walletModal");
+  if (modal) {
+    modal.style.display = show ? "flex" : "none";
+  }
+}
+
+function closeWalletModal(event) {
+  toggleWalletModal(false);
+}
+
+async function selectWallet(walletType) {
+  toggleWalletModal(false);
+  let provider = null;
+
+  if (walletType === 'phantom') {
+    provider = window.phantom?.solana || (window.solana?.isPhantom ? window.solana : null);
+  } else if (walletType === 'brave') {
+    provider = window.solana?.isBraveWallet ? window.solana : null;
+  } else {
+    provider = window.solana;
+  }
 
   if (provider) {
-    if (userWalletAddress) {
-      // Disconnect
-      await provider.disconnect();
-      userWalletAddress = null;
-      document.getElementById("btnConnect").innerText = "Connect Wallet";
-      document.getElementById("userSection").style.display = "none";
-      document.getElementById("adminSection").style.display = "none";
-      hideAlerts();
-    } else {
-      // Connect
-      try {
-        const response = await provider.connect();
-        userWalletAddress = response.publicKey.toString();
-        document.getElementById("btnConnect").innerText = "Connected";
-        document.getElementById("txtUserWallet").value = userWalletAddress;
-        document.getElementById("userSection").style.display = "block";
-        
-        // Generate Referral Link
-        const refLink = `${window.location.origin}${window.location.pathname}?ref=${userWalletAddress}`;
-        document.getElementById("lblRefUrl").innerText = refLink;
-        
-        // Display admin panel if creator wallet connects
-        if (userWalletAddress === CREATOR_WALLET) {
-          document.getElementById("adminSection").style.display = "block";
-          loadAdminClaims();
-        } else {
-          document.getElementById("adminSection").style.display = "none";
-        }
-        hideAlerts();
-      } catch (err) {
-        showError("Wallet connection rejected by user.");
-      }
-    }
+    selectedProvider = provider;
+    await connectWallet();
   } else {
     const downloadUrl = getPhantomDownloadUrl();
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (isMobile) {
-      // Phantom mobile deep link to open this site in Phantom's in-app browser
       const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
-      showError(`Wallet not detected. If you have a wallet installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a> to claim your rewards, or install Phantom from your App Store.`);
+      showError(`Wallet not found. If you have the app installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a>, or download it from your App Store.`);
     } else {
-      // Desktop
-      showError(`Solana Wallet extension not found. Please <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">install Phantom Wallet</a> to claim your rewards.`);
+      showError(`Selected wallet provider was not found. Please install the <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">Phantom Wallet Extension</a>.`);
     }
   }
+}
+
+async function connectWallet() {
+  if (!selectedProvider) return;
+  try {
+    const response = await selectedProvider.connect();
+    userWalletAddress = response.publicKey.toString();
+    document.getElementById("btnConnect").innerText = "Connected";
+    document.getElementById("txtUserWallet").value = userWalletAddress;
+    document.getElementById("userSection").style.display = "block";
+    
+    // Generate Referral Link
+    const refLink = `${window.location.origin}${window.location.pathname}?ref=${userWalletAddress}`;
+    document.getElementById("lblRefUrl").innerText = refLink;
+    
+    // Display admin panel if creator wallet connects
+    if (userWalletAddress === CREATOR_WALLET) {
+      document.getElementById("adminSection").style.display = "block";
+      loadAdminClaims();
+    } else {
+      document.getElementById("adminSection").style.display = "none";
+    }
+    hideAlerts();
+  } catch (err) {
+    showError("Wallet connection rejected by user.");
+  }
+}
+
+async function disconnectWallet() {
+  if (selectedProvider) {
+    try {
+      await selectedProvider.disconnect();
+    } catch (e) {
+      console.warn("Disconnect failed:", e);
+    }
+  }
+  userWalletAddress = null;
+  selectedProvider = null;
+  document.getElementById("btnConnect").innerText = "Connect Wallet";
+  document.getElementById("userSection").style.display = "none";
+  document.getElementById("adminSection").style.display = "none";
+  hideAlerts();
 }
 
 // Save Google Apps Script URL in Admin Panel
