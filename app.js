@@ -278,6 +278,18 @@ async function promptAdminLogin() {
   }
 }
 
+// Tutorial Modal Handlers
+function toggleTutorialModal(show) {
+  const modal = document.getElementById("tutorialModal");
+  if (modal) {
+    modal.style.display = show ? "flex" : "none";
+  }
+}
+
+function closeTutorialModal(event) {
+  toggleTutorialModal(false);
+}
+
 // Display Alerts
 function showSuccess(msg) {
   document.getElementById("alertError").style.display = "none";

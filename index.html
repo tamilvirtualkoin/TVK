@@ -60,6 +60,10 @@
           <a id="btnDownloadPhantom" href="https://phantom.app/download" target="_blank" style="color: var(--accent-cyan); font-weight: 600; text-decoration: underline; margin-left: 0.25rem;">
             Download Phantom Wallet
           </a>
+          <span style="margin: 0 0.4rem;">|</span>
+          <button id="btnTutorial" onclick="toggleTutorialModal(true)" style="background: none; border: none; color: var(--accent-cyan); font-weight: 600; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-family: inherit; padding: 0;">
+            How to copy address?
+          </button>
         </div>
       </div>
 
@@ -194,6 +198,47 @@
     </footer>
   </div>
 
+  <!-- Tutorial Modal -->
+  <div id="tutorialModal" class="modal-overlay" style="display: none;" onclick="closeTutorialModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 480px; width: 90%;">
+      <div class="modal-header">
+        <h3>How to copy address</h3>
+        <button class="btn-close-modal" onclick="toggleTutorialModal(false)">✕</button>
+      </div>
+      <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; font-family: 'Space Grotesk', sans-serif;">
+        <p style="margin-bottom: 1.25rem; color: #fff; font-weight: 600; font-size: 1rem;">Follow these 5 simple steps:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <span style="background: var(--accent-cyan); color: #000; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;">1</span>
+            <div>Open the <strong>Phantom Wallet app</strong> on your phone.</div>
+          </div>
+          
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <span style="background: var(--accent-cyan); color: #000; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;">2</span>
+            <div>On the main screen, tap the <strong>"Receive"</strong> button (icon with the down arrow 📥).</div>
+          </div>
+          
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <span style="background: var(--accent-cyan); color: #000; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;">3</span>
+            <div>Tap on <strong>"Solana"</strong> from the list of coins.</div>
+          </div>
+          
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <span style="background: var(--accent-cyan); color: #000; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;">4</span>
+            <div>Tap the yellow <strong>"Copy"</strong> button to copy your unique address to your phone's clipboard.</div>
+          </div>
+          
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <span style="background: var(--accent-cyan); color: #000; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;">5</span>
+            <div>Come back to this website, tap and hold the address input box, select <strong>"Paste"</strong>, and click <strong>"Submit Airdrop Claim"</strong>!</div>
+          </div>
+        </div>
+        
+        <button class="btn-wallet" style="width: 100%; margin-top: 1.5rem; border-color: var(--accent-cyan); background: rgba(0, 242, 254, 0.05); color: #fff;" onclick="toggleTutorialModal(false)">Got It!</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js?v=1.1"></script>
 </body>
