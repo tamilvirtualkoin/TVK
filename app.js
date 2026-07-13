@@ -40,15 +40,28 @@ function getPhantomDownloadUrl() {
   return "https://phantom.app/download"; // Desktop browser extension
 }
 
+// Helper to retrieve Phantom provider (bypasses conflicts with Brave/Coinbase wallets)
+function getProvider() {
+  if ('phantom' in window) {
+    const provider = window.phantom?.solana;
+    if (provider?.isPhantom) {
+      return provider;
+    }
+  }
+  if (window.solana?.isPhantom) {
+    return window.solana;
+  }
+  return null;
+}
+
 // Connect / Disconnect Phantom Wallet (Uses local wallet injection, no RPC needed)
 async function toggleWallet() {
-  const hasSolana = !!window.solana;
-  const isPhantom = window.solana && window.solana.isPhantom;
+  const provider = getProvider();
 
-  if (hasSolana && isPhantom) {
+  if (provider) {
     if (userWalletAddress) {
       // Disconnect
-      await window.solana.disconnect();
+      await provider.disconnect();
       userWalletAddress = null;
       document.getElementById("btnConnect").innerText = "Connect Wallet";
       document.getElementById("userSection").style.display = "none";
@@ -57,7 +70,7 @@ async function toggleWallet() {
     } else {
       // Connect
       try {
-        const response = await window.solana.connect();
+        const response = await provider.connect();
         userWalletAddress = response.publicKey.toString();
         document.getElementById("btnConnect").innerText = "Connected";
         document.getElementById("txtUserWallet").value = userWalletAddress;
@@ -81,10 +94,19 @@ async function toggleWallet() {
     }
   } else {
     const downloadUrl = getPhantomDownloadUrl();
-    if (hasSolana && !isPhantom) {
-      showError(`Another wallet (like Brave Wallet) is active. Please install and use the <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">Phantom Wallet Extension</a> instead to claim your rewards.`);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Phantom mobile deep link to open this site in Phantom's in-app browser
+      const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
+      showError(`Wallet not detected. If you have Phantom installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a> to claim your rewards, or install Phantom from your App Store.`);
     } else {
-      showError(`Phantom Wallet not found. Please <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">install Phantom Wallet</a> on your device to claim your rewards.`);
+      // Desktop
+      if (window.solana) {
+        showError(`Another wallet (like Brave Wallet) is active. Please set Phantom as your default wallet in its extension settings, or install <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">Phantom Wallet</a>.`);
+      } else {
+        showError(`Phantom Wallet extension not found. Please <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">install Phantom Wallet</a> to claim your rewards.`);
+      }
     }
   }
 }
