@@ -1,0 +1,532 @@
+/* Import High-Tech Fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+:root {
+  --bg-dark: #030712;
+  --panel-bg: rgba(6, 9, 22, 0.85);
+  --border-glow: linear-gradient(90deg, #9945ff, #14f195); /* Solana Purple to Green */
+  --accent-cyan: #00f2fe;
+  --accent-purple: #9945ff;
+  --accent-green: #14f195;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --success: #10b981;
+  --error: #f43f5e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 1rem;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* High-tech matrix/grid background pattern */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(153, 69, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 241, 149, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Glowing Neon Orbs */
+body::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(153, 69, 255, 0.15) 0%, transparent 70%);
+  filter: blur(50px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.container {
+  max-width: 850px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  z-index: 1;
+}
+
+/* Header & Logo styling */
+header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-container {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--border-glow);
+  padding: 2px;
+  box-shadow: 0 0 35px rgba(153, 69, 255, 0.4);
+  position: relative;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #030712;
+}
+
+h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #fff 40%, var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 580px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Cyberpunk Telegram button */
+.btn-telegram {
+  background: transparent;
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+  padding: 0.6rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 0.5rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Fira Code', monospace;
+  box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.1), 0 0 10px rgba(0, 242, 254, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-telegram:hover {
+  background: var(--accent-cyan);
+  color: #030712;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+}
+
+/* DeFi Card / Cyberpunk Panel (Glowing borders) */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing top accent strip */
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--border-glow);
+}
+
+/* Terminal System Status Bar */
+.system-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-green);
+  background: rgba(20, 241, 149, 0.05);
+  border: 1px solid rgba(20, 241, 149, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-green);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  box-shadow: 0 0 8px var(--accent-green);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(20, 241, 149, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(20, 241, 149, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(20, 241, 149, 0); }
+}
+
+.panel-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+/* Wallet Button - Cyberpunk layout */
+.btn-wallet {
+  background: var(--border-glow);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(153, 69, 255, 0.35);
+  transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-wallet:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 25px rgba(153, 69, 255, 0.55);
+  filter: brightness(1.1);
+}
+
+.btn-wallet:active {
+  transform: translateY(0);
+}
+
+/* Stats Layout */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1.5rem 1.2rem;
+  text-align: left;
+  position: relative;
+}
+
+.stat-val {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'Fira Code', monospace;
+  color: #fff;
+  letter-spacing: -1px;
+}
+
+.stat-lbl {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+/* Inputs & Labels */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.form-group label {
+  color: var(--accent-cyan);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.input-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  font-family: 'Fira Code', monospace;
+  width: 100%;
+  transition: border-color 0.3s;
+}
+
+.input-box:focus {
+  border-color: var(--accent-cyan);
+}
+
+/* Referral code container */
+.ref-box {
+  background: rgba(153, 69, 255, 0.05);
+  border: 1px dashed rgba(153, 69, 255, 0.3);
+  border-radius: 6px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ref-url {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-copy {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: 'Fira Code', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-copy:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-cyan);
+}
+
+/* Admin Dashboard styles */
+.admin-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 2rem;
+  display: none;
+}
+
+.admin-header {
+  color: var(--accent-purple);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+th, td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+th {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.btn-action {
+  background: var(--accent-green);
+  color: #030712;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.btn-action:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(20, 241, 149, 0.4);
+}
+
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Fira Code', monospace;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: rgba(153, 69, 255, 0.15);
+  color: #c084fc;
+}
+
+.status-success {
+  background: rgba(20, 241, 149, 0.15);
+  color: var(--accent-green);
+}
+
+/* Alert system alerts */
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: 'Fira Code', monospace;
+  display: none;
+}
+
+.alert-success {
+  background: rgba(20, 241, 149, 0.05);
+  border: 1px solid rgba(20, 241, 149, 0.2);
+  color: var(--accent-green);
+}
+
+.alert-error {
+  background: rgba(244, 63, 94, 0.05);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  color: var(--error);
+}
+
+/* Footer layout */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-family: 'Fira Code', monospace;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+footer a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-cyan);
+}
+
+footer a:hover {
+  border-bottom-style: solid;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    letter-spacing: -1px;
+  }
+  
+  .tagline {
+    font-size: 0.95rem;
+  }
+  
+  .panel {
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+  }
+  
+  .panel-title {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .btn-wallet {
+    width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Make the 3rd stat card span full width on odd-count grid items */
+  .stats-grid > :nth-child(3) {
+    grid-column: span 2;
+  }
+  
+  .stat-card {
+    padding: 1rem 0.75rem;
+  }
+  
+  .stat-val {
+    font-size: 1.5rem;
+  }
+  
+  .ref-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .ref-url {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  
+  footer {
+    word-break: break-all;
+    font-size: 0.75rem;
+  }
+}

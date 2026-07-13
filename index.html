@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tamil Virtual Koin (TVK) - Airdrop & Referrals</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <!-- Logo points to the hosted logo image -->
+        <img src="https://files.catbox.moe/nqd6hh.png" alt="TVK Logo" class="logo-img">
+      </div>
+      <h1>Tamil Virtual Koin</h1>
+      <p class="tagline">The official community token for Tamil culture and connection. Secure, decentralized, and built on Solana.</p>
+      <a href="https://t.me/TamilVirtualKoin" target="_blank" class="btn-telegram">Join Telegram Community</a>
+    </header>
+
+    <main class="panel">
+      <!-- High-Tech Status Indicator -->
+      <div class="system-status">
+        <div><span class="pulse-dot"></span>SYSTEM STATUS: ACTIVE</div>
+        <div>NETWORK: SOLANA_MAINNET</div>
+      </div>
+
+      <div class="panel-title">
+        <span>Airdrop & Referral Campaign</span>
+        <button id="btnConnect" class="btn-wallet" onclick="toggleWallet()">Connect Wallet</button>
+      </div>
+
+      <!-- General Campaign Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="statClaims" class="stat-val">0 / 25</div>
+          <div class="stat-lbl">Early Claims</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">20,000</div>
+          <div class="stat-lbl">Signup Reward (TVK)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">1,000</div>
+          <div class="stat-lbl">Per Referral (TVK)</div>
+        </div>
+      </div>
+
+      <!-- Alerts for Success/Error -->
+      <div id="alertSuccess" class="alert alert-success"></div>
+      <div id="alertError" class="alert alert-error"></div>
+
+      <!-- Wallet Connected Section -->
+      <div id="userSection" style="display: none;" class="form-group">
+        <label>Your Wallet Address</label>
+        <input type="text" id="txtUserWallet" class="input-box" readonly>
+        
+        <div style="margin-top: 1rem;" class="form-group" id="claimArea">
+          <button id="btnClaim" class="btn-wallet" style="width: 100%;" onclick="submitClaim()">Submit Airdrop Claim</button>
+        </div>
+
+        <div style="margin-top: 1rem;" class="form-group">
+          <label>Your Referral Link</label>
+          <div class="ref-box">
+            <span id="lblRefUrl" class="ref-url">Connect wallet to generate referral link</span>
+            <button class="btn-copy" onclick="copyReferralLink()">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Admin Section for Creator Wallet -->
+      <div id="adminSection" class="admin-section">
+        <h2 class="admin-header">Admin Dashboard (Creator Only)</h2>
+        
+        <!-- Script URL Setup -->
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label>Google Apps Script API URL</label>
+          <input type="text" id="txtScriptUrl" class="input-box" placeholder="Paste your Google Apps Script URL here" onchange="saveScriptUrl()">
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Wallet Address</th>
+                <th>Referrer Address</th>
+                <th>Referrals</th>
+                <th>Claim Amount (TVK)</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Connect creator wallet to view claims</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Trust & Verification Panel -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>Security & Market Verification</span>
+        <span style="font-family: 'Fira Code', monospace; font-size: 0.75rem; color: var(--accent-green);">VERIFIED ON-CHAIN ✓</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">100M</div>
+          <div class="stat-lbl">Total Supply (Fixed)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">0%</div>
+          <div class="stat-lbl">Buy/Sell Tax</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">Token-2022</div>
+          <div class="stat-lbl">Token Standard</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contract Security Audit</label>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Security Parameter</th>
+                <th>Status</th>
+                <th>Implication</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Mint Authority</strong></td>
+                <td><span class="status-badge status-success">Revoked</span></td>
+                <td>100% fixed supply. No more coins can ever be created.</td>
+              </tr>
+              <tr>
+                <td><strong>Freeze Authority</strong></td>
+                <td><span class="status-badge status-success">Disabled</span></td>
+                <td>Your coins can never be frozen by anyone. You have full ownership.</td>
+              </tr>
+              <tr>
+                <td><strong>Metadata Pointer</strong></td>
+                <td><span class="status-badge status-success">Immutable</span></td>
+                <td>The name, symbol, description, and logo are permanently locked on-chain.</td>
+              </tr>
+              <tr>
+                <td><strong>Liquidity Pool</strong></td>
+                <td><span class="status-badge status-success">Active</span></td>
+                <td>TVK/SOL pool is live on Meteora DAMM.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Real-Time Market Tracking</label>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+          <a href="https://dexscreener.com/solana/C8sB7baAUrTHj6HzLKkSeTNXTKC58Kmuv71P3kDytubM" target="_blank" class="btn-copy" style="text-align: center; text-decoration: none; display: block; border-color: var(--accent-cyan); color: var(--accent-cyan);">
+            📈 DexScreener Live Chart
+          </a>
+          <a href="https://app.meteora.ag/dammv2/C8sB7baAUrTHj6HzLKkSeTNXTKC58Kmuv71P3kDytubM" target="_blank" class="btn-copy" style="text-align: center; text-decoration: none; display: block; border-color: var(--accent-green); color: var(--accent-green);">
+            💧 Swap on Meteora Pool
+          </a>
+          <a href="https://solscan.io/token/k9uz5aSAFQAb2wMLuP2MU73FnwJRMThcsfmmr5KbQ3E" target="_blank" class="btn-copy" style="text-align: center; text-decoration: none; display: block; border-color: var(--accent-purple); color: var(--accent-purple);">
+            🔍 Audit Contract on Solscan
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Contract Address: <a href="https://solscan.io/token/k9uz5aSAFQAb2wMLuP2MU73FnwJRMThcsfmmr5KbQ3E" target="_blank">k9uz5aSAFQAb2wMLuP2MU73FnwJRMThcsfmmr5KbQ3E</a> | <a href="https://t.me/TamilVirtualKoin" target="_blank">Telegram</a></p>
+      <p style="margin-top: 0.5rem; color: var(--text-muted);">© 2026 Tamil Virtual Koin. Built on Solana Mainnet.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

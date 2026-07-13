@@ -1,0 +1,12 @@
+# Ignore sensitive private key files
+wallet.json
+Privetkey.doc
+
+# OS files
+.DS_Store
+
+# Images/Large Assets (optional to ignore or commit, but let's keep them out of git if not needed, or let the user choose)
+# TVK logo.png
+# banner
+# banner.jpg
+# *.png
