@@ -1,155 +1,63 @@
 const MINT_ADDRESS = "k9uz5aSAFQAb2wMLuP2MU73FnwJRMThcsfmmr5KbQ3E";
 const CREATOR_WALLET = "24CbJMAacduVCbxqKroXPUGed8dHUBPWYGuySDh7fmWn";
+const scriptUrl = "https://script.google.com/macros/s/AKfycbwpF_qLZypzzhsCgdqXSMvmN6_OwFMsgnG8THtyjtCvo57dwjaDxkN3ZhKxJRtow-1nbQ/exec";
 
 let userWalletAddress = null;
 let referrerAddress = null;
 
-// Google Apps Script URL for live database
-const scriptUrl = "https://script.google.com/macros/s/AKfycbwpF_qLZypzzhsCgdqXSMvmN6_OwFMsgnG8THtyjtCvo57dwjaDxkN3ZhKxJRtow-1nbQ/exec";
-
 window.addEventListener("load", () => {
-  // Check for referrer in URL params: e.g., ?ref=WALLET_ADDRESS
+  // Detect Referrer parameter in URL (?ref=WALLET_ADDRESS)
   const urlParams = new URLSearchParams(window.location.search);
   const ref = urlParams.get("ref");
+  
   if (ref && validateSolanaAddress(ref)) {
     referrerAddress = ref;
     localStorage.setItem("tvk_referrer", ref);
+    document.getElementById("txtReferrerWallet").value = ref;
     console.log("Referrer detected:", referrerAddress);
   } else {
     referrerAddress = localStorage.getItem("tvk_referrer") || null;
+    if (referrerAddress) {
+      document.getElementById("txtReferrerWallet").value = referrerAddress;
+    }
   }
-  
-  document.getElementById("txtScriptUrl").value = scriptUrl;
+
+  // Pre-load stats from Google Sheets database
   fetchStats();
 });
 
-// Check if address is a valid Solana public key (basic length and character check)
+// Check if address is a valid Solana public key (basic regex check)
 function validateSolanaAddress(address) {
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
-// Helper to get device-specific Phantom download link
-function getPhantomDownloadUrl() {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  if (/android/i.test(ua)) {
-    return "https://play.google.com/store/apps/details?id=app.phantom"; // Android Play Store
-  }
-  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-    return "https://apps.apple.com/app/phantom-solana-wallet/id1598432977"; // iOS App Store
-  }
-  return "https://phantom.app/download"; // Desktop browser extension
-}
+// Handle address input and reveal features dynamically
+function handleAddressInput() {
+  const addressInput = document.getElementById("txtUserWallet").value.trim();
+  const refContainer = document.getElementById("refLinkContainer");
+  const adminSection = document.getElementById("adminSection");
+  
+  if (validateSolanaAddress(addressInput)) {
+    userWalletAddress = addressInput;
+    hideAlerts();
 
-// Helper to retrieve any available Solana wallet provider
-function getProvider() {
-  if (window.solana) {
-    return window.solana;
-  }
-  if ('phantom' in window) {
-    return window.phantom?.solana;
-  }
-  return null;
-}
-
-let selectedProvider = null;
-
-function openWalletModal() {
-  if (userWalletAddress) {
-    disconnectWallet();
-  } else {
-    toggleWalletModal(true);
-  }
-}
-
-function toggleWalletModal(show) {
-  const modal = document.getElementById("walletModal");
-  if (modal) {
-    modal.style.display = show ? "flex" : "none";
-  }
-}
-
-function closeWalletModal(event) {
-  toggleWalletModal(false);
-}
-
-async function selectWallet(walletType) {
-  toggleWalletModal(false);
-  let provider = null;
-
-  if (walletType === 'phantom') {
-    provider = window.phantom?.solana || (window.solana?.isPhantom ? window.solana : null);
-  } else if (walletType === 'brave') {
-    provider = window.solana?.isBraveWallet ? window.solana : null;
-  } else {
-    provider = window.solana;
-  }
-
-  if (provider) {
-    selectedProvider = provider;
-    await connectWallet();
-  } else {
-    const downloadUrl = getPhantomDownloadUrl();
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
-      showError(`Wallet not found. If you have the app installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a>, or download it from your App Store.`);
-    } else {
-      showError(`Selected wallet provider was not found. Please install the <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">Phantom Wallet Extension</a>.`);
-    }
-  }
-}
-
-async function connectWallet() {
-  if (!selectedProvider) return;
-  try {
-    const response = await selectedProvider.connect();
-    userWalletAddress = response.publicKey.toString();
-    document.getElementById("btnConnect").innerText = "Connected";
-    document.getElementById("txtUserWallet").value = userWalletAddress;
-    document.getElementById("userSection").style.display = "block";
-    
-    // Generate Referral Link
+    // Generate and display referral link
     const refLink = `${window.location.origin}${window.location.pathname}?ref=${userWalletAddress}`;
     document.getElementById("lblRefUrl").innerText = refLink;
-    
-    // Display admin panel if creator wallet connects
+    refContainer.style.display = "block";
+
+    // Reveal Creator Admin Dashboard automatically if creator address is pasted
     if (userWalletAddress === CREATOR_WALLET) {
-      document.getElementById("adminSection").style.display = "block";
+      adminSection.style.display = "block";
       loadAdminClaims();
     } else {
-      document.getElementById("adminSection").style.display = "none";
+      adminSection.style.display = "none";
     }
-    hideAlerts();
-  } catch (err) {
-    showError("Wallet connection rejected by user.");
-  }
-}
-
-async function disconnectWallet() {
-  if (selectedProvider) {
-    try {
-      await selectedProvider.disconnect();
-    } catch (e) {
-      console.warn("Disconnect failed:", e);
-    }
-  }
-  userWalletAddress = null;
-  selectedProvider = null;
-  document.getElementById("btnConnect").innerText = "Connect Wallet";
-  document.getElementById("userSection").style.display = "none";
-  document.getElementById("adminSection").style.display = "none";
-  hideAlerts();
-}
-
-// Save Google Apps Script URL in Admin Panel
-function saveScriptUrl() {
-  scriptUrl = document.getElementById("txtScriptUrl").value.trim();
-  localStorage.setItem("tvk_script_url", scriptUrl);
-  showSuccess("Google Script API URL saved successfully!");
-  fetchStats();
-  if (userWalletAddress === CREATOR_WALLET) {
-    loadAdminClaims();
+  } else {
+    // Hide panels if address is incomplete or invalid
+    userWalletAddress = null;
+    refContainer.style.display = "none";
+    adminSection.style.display = "none";
   }
 }
 
@@ -163,10 +71,19 @@ function copyReferralLink() {
   });
 }
 
-// Submit claim to DB (Google Sheet or Mock)
+// Submit claim to Google Sheet database
 async function submitClaim() {
-  if (!userWalletAddress) return showError("Please connect your wallet first.");
+  const addressInput = document.getElementById("txtUserWallet").value.trim();
   
+  if (!addressInput) {
+    return showError("Please enter your Solana wallet address first.");
+  }
+  if (!validateSolanaAddress(addressInput)) {
+    return showError("Please enter a valid Solana wallet address (32-44 characters).");
+  }
+
+  userWalletAddress = addressInput;
+
   const payload = {
     wallet: userWalletAddress,
     referrer: referrerAddress || ""
@@ -176,35 +93,17 @@ async function submitClaim() {
     document.getElementById("btnClaim").innerText = "Submitting claim...";
     document.getElementById("btnClaim").disabled = true;
     
-    if (scriptUrl) {
-      const response = await fetch(scriptUrl, {
-        method: "POST",
-        mode: "no-cors", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      
-      showSuccess("Claim submitted! The creator will review and send your 20,000 TVK shortly.");
-      fetchStats();
-    } else {
-      // Fallback: LocalStorage Mock database
-      let claims = JSON.parse(localStorage.getItem("tvk_mock_claims") || "[]");
-      if (claims.some(c => c.wallet === userWalletAddress)) {
-        showError("You have already submitted a claim with this wallet.");
-      } else {
-        claims.push({
-          wallet: userWalletAddress,
-          referrer: referrerAddress || "",
-          timestamp: new Date().toISOString(),
-          status: "pending"
-        });
-        localStorage.setItem("tvk_mock_claims", JSON.stringify(claims));
-        showSuccess("Mock Claim submitted successfully! (Connecting your Google Sheet URL is recommended for production).");
-        updateMockStats();
-        if (userWalletAddress === CREATOR_WALLET) {
-          loadAdminClaims();
-        }
-      }
+    await fetch(scriptUrl, {
+      method: "POST",
+      mode: "no-cors", 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    
+    showSuccess("Airdrop claim submitted successfully! The creator will review and transfer your 20,000 TVK shortly.");
+    fetchStats();
+    if (userWalletAddress === CREATOR_WALLET) {
+      loadAdminClaims();
     }
   } catch (err) {
     showError("Failed to submit claim: " + err.message);
@@ -214,9 +113,8 @@ async function submitClaim() {
   }
 }
 
-// Fetch stats from Google Sheet / Local Mock
+// Fetch stats from Google Sheet Web App
 async function fetchStats() {
-  if (!scriptUrl) return;
   try {
     const res = await fetch(scriptUrl);
     const claims = await res.json();
@@ -227,25 +125,14 @@ async function fetchStats() {
   }
 }
 
-// Update stats from Local Storage (Mock mode)
-function updateMockStats() {
-  const claims = JSON.parse(localStorage.getItem("tvk_mock_claims") || "[]");
-  const approvedCount = claims.filter(c => c.status === "completed").length;
-  document.getElementById("statClaims").innerText = `${approvedCount} / 25`;
-}
-
-// Load Claims into Admin Dashboard (Simple List - No RPC needed)
+// Load Claims into Admin Dashboard (No Web3/RPC dependencies)
 async function loadAdminClaims() {
   let claims = [];
-  if (scriptUrl) {
-    try {
-      const res = await fetch(scriptUrl);
-      claims = await res.json();
-    } catch (e) {
-      console.error("Failed to load claims:", e);
-    }
-  } else {
-    claims = JSON.parse(localStorage.getItem("tvk_mock_claims") || "[]");
+  try {
+    const res = await fetch(scriptUrl);
+    claims = await res.json();
+  } catch (e) {
+    console.error("Failed to load claims:", e);
   }
   
   const tbody = document.getElementById("adminTableBody");
@@ -296,32 +183,21 @@ async function loadAdminClaims() {
 // Copy helper function for admin
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
-    showSuccess(`Copied: ${text}`);
+    showSuccess(`Copied to clipboard: ${text}`);
   });
 }
 
-// Mark claim status as completed in DB
+// Mark claim status as completed in Google Sheets
 async function markAsCompleted(claimIdx) {
   showSuccess("Updating status...");
-  
-  if (scriptUrl) {
-    try {
-      await fetch(scriptUrl + `?updateIdx=${claimIdx}&status=completed`);
-      showSuccess("Status updated to completed in Google Sheet!");
-    } catch (e) {
-      showError("Failed to update Google Sheet: " + e.message);
-      return;
-    }
-  } else {
-    let claims = JSON.parse(localStorage.getItem("tvk_mock_claims") || "[]");
-    claims[claimIdx].status = "completed";
-    localStorage.setItem("tvk_mock_claims", JSON.stringify(claims));
-    showSuccess("Mock Status updated to completed!");
+  try {
+    await fetch(scriptUrl + `?updateIdx=${claimIdx}&status=completed`);
+    showSuccess("Status updated to completed in Google Sheet!");
+    loadAdminClaims();
+    fetchStats();
+  } catch (e) {
+    showError("Failed to update Google Sheet: " + e.message);
   }
-  
-  // Reload dashboard UI
-  loadAdminClaims();
-  if (scriptUrl) fetchStats(); else updateMockStats();
 }
 
 // Display Alerts

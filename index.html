@@ -28,7 +28,6 @@
 
       <div class="panel-title">
         <span>Airdrop & Referral Campaign</span>
-        <button id="btnConnect" class="btn-wallet" onclick="openWalletModal()">Connect Wallet</button>
       </div>
 
       <!-- General Campaign Stats -->
@@ -51,21 +50,28 @@
       <div id="alertSuccess" class="alert alert-success"></div>
       <div id="alertError" class="alert alert-error"></div>
 
-      <!-- Wallet Connected Section -->
-      <div id="userSection" style="display: none;" class="form-group">
-        <label>Your Wallet Address</label>
-        <input type="text" id="txtUserWallet" class="input-box" readonly>
-        
-        <div style="margin-top: 1rem;" class="form-group" id="claimArea">
-          <button id="btnClaim" class="btn-wallet" style="width: 100%;" onclick="submitClaim()">Submit Airdrop Claim</button>
-        </div>
+      <!-- Simple Input Claim Form -->
+      <div class="form-group">
+        <label>Your Solana (SOL) Address</label>
+        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">(Open your Phantom App, copy your SOL address, and paste it below)</span>
+        <input type="text" id="txtUserWallet" class="input-box" placeholder="Paste your Solana Wallet Address (e.g. 24CbJMA...)" oninput="handleAddressInput()">
+      </div>
 
-        <div style="margin-top: 1rem;" class="form-group">
-          <label>Your Referral Link</label>
-          <div class="ref-box">
-            <span id="lblRefUrl" class="ref-url">Connect wallet to generate referral link</span>
-            <button class="btn-copy" onclick="copyReferralLink()">Copy</button>
-          </div>
+      <div class="form-group" style="margin-top: 0.5rem;">
+        <label>Referrer Address (Optional)</label>
+        <input type="text" id="txtReferrerWallet" class="input-box" placeholder="No referrer detected" readonly disabled>
+      </div>
+
+      <div style="margin-top: 1rem;" class="form-group" id="claimArea">
+        <button id="btnClaim" class="btn-wallet" style="width: 100%;" onclick="submitClaim()">Submit Airdrop Claim</button>
+      </div>
+
+      <!-- Referral Link (Shown dynamically once address is valid) -->
+      <div id="refLinkContainer" style="display: none; margin-top: 1rem;" class="form-group">
+        <label>Your Unique Referral Link</label>
+        <div class="ref-box">
+          <span id="lblRefUrl" class="ref-url"></span>
+          <button class="btn-copy" onclick="copyReferralLink()">Copy</button>
         </div>
       </div>
 
@@ -182,27 +188,7 @@
     </footer>
   </div>
 
-  <!-- Wallet Selection Modal -->
-  <div id="walletModal" class="modal-overlay" style="display: none;" onclick="closeWalletModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Select Wallet</h3>
-        <button class="btn-close-modal" onclick="toggleWalletModal(false)">✕</button>
-      </div>
-      <div class="wallet-options-list">
-        <button class="btn-wallet-option" onclick="selectWallet('phantom')">
-          <span>👻 Phantom Wallet</span>
-        </button>
-        <button class="btn-wallet-option" onclick="selectWallet('brave')">
-          <span>🦁 Brave Wallet</span>
-        </button>
-        <button class="btn-wallet-option" onclick="selectWallet('injected')">
-          <span>🔌 Other / Injected Wallet</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=1.1"></script>
 </body>
 </html>
