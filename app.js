@@ -44,11 +44,11 @@ function getPhantomDownloadUrl() {
 function getProvider() {
   if ('phantom' in window) {
     const provider = window.phantom?.solana;
-    if (provider?.isPhantom) {
+    if (provider?.isPhantom && !provider?.isBraveWallet) {
       return provider;
     }
   }
-  if (window.solana?.isPhantom) {
+  if (window.solana?.isPhantom && !window.solana?.isBraveWallet) {
     return window.solana;
   }
   return null;
