@@ -55,7 +55,7 @@ function doGet(e) {
   // Handle updates from admin dashboard: ?updateIdx=CLAIM_INDEX&status=completed
   if (e.parameter.updateIdx !== undefined && e.parameter.status !== undefined) {
     var idx = parseInt(e.parameter.updateIdx) + 2; // Rows are 1-indexed, header is row 1, so index 0 is row 2
-    sheet.getCell(idx, 4).setValue(e.parameter.status);
+    sheet.getRange(idx, 4).setValue(e.parameter.status);
     return ContentService.createTextOutput(JSON.stringify({ status: "updated" }))
       .setMimeType(ContentService.MimeType.JSON);
   }
