@@ -40,16 +40,13 @@ function getPhantomDownloadUrl() {
   return "https://phantom.app/download"; // Desktop browser extension
 }
 
-// Helper to retrieve Phantom provider (bypasses conflicts with Brave/Coinbase wallets)
+// Helper to retrieve any available Solana wallet provider
 function getProvider() {
-  if ('phantom' in window) {
-    const provider = window.phantom?.solana;
-    if (provider?.isPhantom && !provider?.isBraveWallet) {
-      return provider;
-    }
-  }
-  if (window.solana?.isPhantom && !window.solana?.isBraveWallet) {
+  if (window.solana) {
     return window.solana;
+  }
+  if ('phantom' in window) {
+    return window.phantom?.solana;
   }
   return null;
 }
@@ -99,14 +96,10 @@ async function toggleWallet() {
     if (isMobile) {
       // Phantom mobile deep link to open this site in Phantom's in-app browser
       const deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}`;
-      showError(`Wallet not detected. If you have Phantom installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a> to claim your rewards, or install Phantom from your App Store.`);
+      showError(`Wallet not detected. If you have a wallet installed, please tap here: <a href="${deepLink}" target="_blank" style="color: #ff8c00; font-weight: 700; text-decoration: underline;">Open in Phantom App</a> to claim your rewards, or install Phantom from your App Store.`);
     } else {
       // Desktop
-      if (window.solana) {
-        showError(`Another wallet (like Brave Wallet) is active. Please set Phantom as your default wallet in its extension settings, or install <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">Phantom Wallet</a>.`);
-      } else {
-        showError(`Phantom Wallet extension not found. Please <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">install Phantom Wallet</a> to claim your rewards.`);
-      }
+      showError(`Solana Wallet extension not found. Please <a href="${downloadUrl}" target="_blank" style="color: #ff8c00; font-weight: 600; text-decoration: underline;">install Phantom Wallet</a> to claim your rewards.`);
     }
   }
 }
