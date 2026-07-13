@@ -5,6 +5,18 @@ const scriptUrl = "https://script.google.com/macros/s/AKfycbwpF_qLZypzzhsCgdqXSM
 let userWalletAddress = null;
 let referrerAddress = null;
 
+// Helper to get device-specific Phantom download link
+function getPhantomDownloadUrl() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  if (/android/i.test(ua)) {
+    return "https://play.google.com/store/apps/details?id=app.phantom"; // Android Play Store
+  }
+  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+    return "https://apps.apple.com/app/phantom-solana-wallet/id1598432977"; // iOS App Store
+  }
+  return "https://phantom.app/download"; // Desktop browser extension
+}
+
 window.addEventListener("load", () => {
   // Detect Referrer parameter in URL (?ref=WALLET_ADDRESS)
   const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +32,12 @@ window.addEventListener("load", () => {
     if (referrerAddress) {
       document.getElementById("txtReferrerWallet").value = referrerAddress;
     }
+  }
+
+  // Update Phantom download button link based on user OS
+  const downloadLink = document.getElementById("btnDownloadPhantom");
+  if (downloadLink) {
+    downloadLink.href = getPhantomDownloadUrl();
   }
 
   // Pre-load stats from Google Sheets database
